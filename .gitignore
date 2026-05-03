@@ -7,3 +7,7 @@ output/
 data/
 *.env.local
 *.env.*.local
+
+.env
+gtvd-backend/.env
+.env.example
