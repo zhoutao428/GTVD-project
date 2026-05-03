@@ -2,6 +2,9 @@ require('dotenv').config();
 const axios = require('axios');
 const fs = require('fs');
 
+// 信任 Bright Data 代理 SSL 证书
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
 class DataFetcher {
     constructor() {
         this.retryCount = 3;
