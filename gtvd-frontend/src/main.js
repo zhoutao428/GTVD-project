@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import {
   Button,
   NavBar,
-  Video,
   Card,
   Icon,
   Loading,
@@ -38,7 +37,6 @@ const app = createApp(App);
 app.use(router);
 app.use(Button);
 app.use(NavBar);
-app.use(Video);
 app.use(Card);
 app.use(Icon);
 app.use(Loading);
