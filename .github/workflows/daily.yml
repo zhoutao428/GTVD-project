@@ -12,11 +12,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install FFmpeg
-        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Install dependencies
         run: cd gtvd-backend && npm install
-      - name: Run daily workflow
+      - name: Update hotspots
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
@@ -25,14 +23,11 @@ jobs:
           BRIGHTDATA_PROXY_PORT: ${{ secrets.BRIGHTDATA_PROXY_PORT }}
           BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
           BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
-        run: cd gtvd-backend && npm run daily
-      - name: Commit and push generated video
+        run: cd gtvd-backend && npm run update
+      - name: Commit and push updates
         run: |
           git config user.name "GTVD Bot"
           git config user.email "bot@gtvd.local"
-          cp gtvd-backend/output/latest.json gtvd-frontend/public/latest.json
-          mkdir -p gtvd-frontend/public/videos
-          cp gtvd-backend/output/videos/*.mp4 gtvd-frontend/public/videos/ 2>/dev/null || true
           git add .
-          git commit -m "每日自动更新视频日报" || echo "No changes"
+          git commit -m "每日自动更新热点日报" || echo "No changes"
           git push

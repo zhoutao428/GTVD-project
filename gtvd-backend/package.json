@@ -8,7 +8,8 @@
     "collect": "node data-fetcher.js",
     "analyze": "node ai-analyzer.js",
     "build": "node video-builder.js",
-    "daily": "node data-fetcher.js && node ai-analyzer.js && node video-builder.js"
+    "daily": "node data-fetcher.js && node ai-analyzer.js && node video-builder.js",
+    "update": "node update-hotspots.js"
   },
   "dependencies": {
     "axios": "^1.6.2",
