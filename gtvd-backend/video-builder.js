@@ -18,29 +18,24 @@ class VideoBuilder {
         this.edgeTtsVoice = process.env.EDGE_TTS_VOICE || 'zh-CN-XiaoxiaoNeural';
         
         this.ensureDirectories();
-        
-        console.log('[VideoBuilder] Video params:', `${this.videoWidth}x${this.videoHeight}@${this.videoFps}fps`);
-        console.log('[VideoBuilder] Edge TTS:', this.edgeTtsEnabled ? 'enabled' : 'disabled');
     }
 
     ensureDirectories() {
-        [this.outputDir, this.tempDir].forEach(dir => {
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-        });
+        if (!fs.existsSync(this.outputDir)) {
+            fs.mkdirSync(this.outputDir, { recursive: true });
+        }
+        if (!fs.existsSync(this.tempDir)) {
+            fs.mkdirSync(this.tempDir, { recursive: true });
+        }
     }
 
     async sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    execFFmpeg(command) {
+    execFFmpegArgs(args) {
         return new Promise((resolve, reject) => {
-            const child = spawn(command, [], { 
-                shell: true,
-                timeout: 300000 
-            });
+            const child = spawn(this.ffmpegPath, args, { timeout: 300000 });
             
             let stderr = '';
             child.stderr.on('data', (data) => {
@@ -70,8 +65,7 @@ class VideoBuilder {
             day: 'numeric' 
         });
         
-        const command = [
-            this.ffmpegPath,
+        const args = [
             '-f', 'lavfi',
             '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=3`,
             '-vf', `drawtext=text='🌍 GTVD 全球热点AI日报':fontsize=60:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-100:enable='between(t,0,3)',drawtext=text='${dateStr}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,3)'`,
@@ -81,17 +75,16 @@ class VideoBuilder {
             '-pix_fmt', 'yuv420p',
             '-y',
             introPath
-        ].join(' ');
+        ];
 
-        await this.execFFmpeg(command);
+        await this.execFFmpegArgs(args);
         return introPath;
     }
 
     async createOutroClip() {
         const outroPath = path.join(this.tempDir, `outro.mp4`);
         
-        const command = [
-            this.ffmpegPath,
+        const args = [
             '-f', 'lavfi',
             '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=5`,
             '-vf', `drawtext=text='感谢观看':fontsize=52:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-30:enable='between(t,0,5)',drawtext=text='明天再见！':fontsize=32:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,5)'`,
@@ -101,9 +94,9 @@ class VideoBuilder {
             '-pix_fmt', 'yuv420p',
             '-y',
             outroPath
-        ].join(' ');
+        ];
 
-        await this.execFFmpeg(command);
+        await this.execFFmpegArgs(args);
         return outroPath;
     }
 
@@ -139,19 +132,18 @@ class VideoBuilder {
         const hasAudio = fs.existsSync(audioPath);
         const hasThumbnail = topic.thumbnail && topic.thumbnail.startsWith('http');
 
-        let command;
+        let args;
         if (hasThumbnail) {
             const thumbnailPath = path.join(this.tempDir, `thumb_${topic.rank}.jpg`);
             await this.downloadFile(topic.thumbnail, thumbnailPath);
 
             if (hasAudio) {
-                command = [
-                    this.ffmpegPath,
+                args = [
                     '-loop', '1',
                     '-i', thumbnailPath,
                     '-i', audioPath,
                     '-t', String(duration),
-                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
+                    '-vf', `zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
@@ -161,30 +153,28 @@ class VideoBuilder {
                     '-pix_fmt', 'yuv420p',
                     '-y',
                     clipPath
-                ].join(' ');
+                ];
             } else {
-                command = [
-                    this.ffmpegPath,
+                args = [
                     '-loop', '1',
                     '-i', thumbnailPath,
                     '-t', String(duration),
-                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
+                    '-vf', `zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
                     '-pix_fmt', 'yuv420p',
                     '-y',
                     clipPath
-                ].join(' ');
+                ];
             }
         } else {
             if (hasAudio) {
-                command = [
-                    this.ffmpegPath,
+                args = [
                     '-f', 'lavfi',
-                    `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
+                    '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
                     '-i', audioPath,
-                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
+                    '-vf', `drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
@@ -194,24 +184,23 @@ class VideoBuilder {
                     '-pix_fmt', 'yuv420p',
                     '-y',
                     clipPath
-                ].join(' ');
+                ];
             } else {
-                command = [
-                    this.ffmpegPath,
+                args = [
                     '-f', 'lavfi',
-                    `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
-                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
+                    '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
+                    '-vf', `drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
                     '-pix_fmt', 'yuv420p',
                     '-y',
                     clipPath
-                ].join(' ');
+                ];
             }
         }
 
-        await this.execFFmpeg(command);
+        await this.execFFmpegArgs(args);
         return clipPath;
     }
 
@@ -236,17 +225,16 @@ class VideoBuilder {
         const listContent = videoPaths.map(p => `file '${p}'`).join('\n');
         fs.writeFileSync(concatListPath, listContent);
 
-        const command = [
-            this.ffmpegPath,
+        const args = [
             '-f', 'concat',
             '-safe', '0',
             '-i', concatListPath,
             '-c', 'copy',
             '-y',
             outputPath
-        ].join(' ');
+        ];
 
-        await this.execFFmpeg(command);
+        await this.execFFmpegArgs(args);
         return outputPath;
     }
 
@@ -312,7 +300,7 @@ async function main() {
     }
 
     const topics = JSON.parse(fs.readFileSync(analyzerPath, 'utf8'));
-    
+
     if (!Array.isArray(topics) || topics.length === 0) {
         console.error('[VideoBuilder] No topics found in analysis file');
         process.exit(1);
