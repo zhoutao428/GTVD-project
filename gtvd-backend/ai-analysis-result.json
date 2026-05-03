@@ -1,35 +1,112 @@
 [
   {
     "rank": 1,
-    "title": "Test Topic 1",
-    "platform": "youtube",
+    "title": "GPT-5性能提升10倍",
+    "platform": "YouTube",
     "category": "AI与科技",
-    "heat_score": 63,
-    "reason_short": "测试数据",
-    "recommendation_voice": "值得一看",
-    "source_link": "https://example.com",
-    "thumbnail": "https://example.com/thumb.jpg"
+    "heat_score": 95,
+    "reason_short": "AI重大突破，引发科技圈震动",
+    "recommendation_voice": "AI又进化了，快来看！",
+    "source_link": "https://youtube.com/watch?v=example1",
+    "thumbnail": "https://example.com/thumb1.jpg"
   },
   {
     "rank": 2,
-    "title": "Test Topic 2",
-    "platform": "tiktok",
+    "title": "TikTok热门挑战引爆全网",
+    "platform": "TikTok",
     "category": "平台爆款-TikTok",
-    "heat_score": 58,
-    "reason_short": "测试数据",
-    "recommendation_voice": "值得一看",
-    "source_link": "https://example.com",
-    "thumbnail": ""
+    "heat_score": 92,
+    "reason_short": "病毒式传播，全民参与",
+    "recommendation_voice": "这个挑战你还没玩？",
+    "source_link": "https://tiktok.com/@example/video2",
+    "thumbnail": "https://example.com/thumb2.jpg"
   },
   {
     "rank": 3,
-    "title": "Test Topic 3",
-    "platform": "twitter",
-    "category": "其他",
-    "heat_score": 64,
-    "reason_short": "测试数据",
-    "recommendation_voice": "值得一看",
-    "source_link": "https://example.com",
-    "thumbnail": ""
+    "title": "2024世界杯精彩瞬间回顾",
+    "platform": "TikTok",
+    "category": "平台爆款-TikTok",
+    "heat_score": 91,
+    "reason_short": "世界杯热度延续，情怀拉满",
+    "recommendation_voice": "世界杯名场面，看哭了",
+    "source_link": "https://tiktok.com/@example/video3",
+    "thumbnail": "https://example.com/thumb3.jpg"
+  },
+  {
+    "rank": 4,
+    "title": "全球气候峰会达成重大协议",
+    "platform": "Twitter",
+    "category": "社会事件",
+    "heat_score": 88,
+    "reason_short": "全球关注，影响深远",
+    "recommendation_voice": "气候协议，改变未来",
+    "source_link": "https://twitter.com/example/status4",
+    "thumbnail": "https://example.com/thumb4.jpg"
+  },
+  {
+    "rank": 5,
+    "title": "SpaceX火星任务最新进展",
+    "platform": "YouTube",
+    "category": "AI与科技",
+    "heat_score": 87,
+    "reason_short": "太空探索，人类梦想",
+    "recommendation_voice": "火星移民又进一步！",
+    "source_link": "https://youtube.com/watch?v=example5",
+    "thumbnail": "https://example.com/thumb5.jpg"
+  },
+  {
+    "rank": 6,
+    "title": "新能源汽车销量创新纪录",
+    "platform": "Instagram",
+    "category": "财经",
+    "heat_score": 85,
+    "reason_short": "行业风向标，投资热点",
+    "recommendation_voice": "新能源车卖爆了",
+    "source_link": "https://instagram.com/p/example6",
+    "thumbnail": "https://example.com/thumb6.jpg"
+  },
+  {
+    "rank": 7,
+    "title": "元宇宙虚拟演唱会创纪录",
+    "platform": "Twitter",
+    "category": "娱乐",
+    "heat_score": 83,
+    "reason_short": "虚拟娱乐新体验，吸引眼球",
+    "recommendation_voice": "虚拟演唱会，超震撼",
+    "source_link": "https://twitter.com/example/status7",
+    "thumbnail": "https://example.com/thumb7.jpg"
+  },
+  {
+    "rank": 8,
+    "title": "美食博主探访世界各地",
+    "platform": "Instagram",
+    "category": "生活创意",
+    "heat_score": 80,
+    "reason_short": "视觉盛宴，治愈人心",
+    "recommendation_voice": "跟着博主吃遍全球",
+    "source_link": "https://instagram.com/p/example8",
+    "thumbnail": "https://example.com/thumb8.jpg"
+  },
+  {
+    "rank": 9,
+    "title": "最新电影票房排行榜",
+    "platform": "Twitter",
+    "category": "娱乐",
+    "heat_score": 78,
+    "reason_short": "影迷关注，话题性强",
+    "recommendation_voice": "票房黑马，你看了吗",
+    "source_link": "https://twitter.com/example/status9",
+    "thumbnail": "https://example.com/thumb9.jpg"
+  },
+  {
+    "rank": 10,
+    "title": "数码产品评测合集",
+    "platform": "YouTube",
+    "category": "AI与科技",
+    "heat_score": 76,
+    "reason_short": "实用指南，种草必备",
+    "recommendation_voice": "数码好物，一网打尽",
+    "source_link": "https://youtube.com/watch?v=example10",
+    "thumbnail": "https://example.com/thumb10.jpg"
   }
 ]
