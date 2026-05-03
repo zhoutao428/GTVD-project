@@ -25,7 +25,7 @@ jobs:
           BRIGHTDATA_PROXY_PORT: ${{ secrets.BRIGHTDATA_PROXY_PORT }}
           BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
           BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
-        run: cd gtvd-backend && node scheduler.js
+        run: cd gtvd-backend && node scheduler.js --run
       - name: Commit and push generated video
         run: |
           git config user.name "GTVD Bot"

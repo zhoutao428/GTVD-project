@@ -6,6 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "start": "node scheduler.js",
+    "collect": "node data-fetcher.js",
+    "analyze": "node ai-analyzer.js",
+    "build": "node video-builder.js",
     "fetcher": "node data-fetcher.js",
     "analyzer": "node ai-analyzer.js",
     "build:video": "node video-builder.js",
