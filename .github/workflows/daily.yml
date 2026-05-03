@@ -25,14 +25,14 @@ jobs:
           BRIGHTDATA_PROXY_PORT: ${{ secrets.BRIGHTDATA_PROXY_PORT }}
           BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
           BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
-        run: cd gtvd-backend && node scheduler.js --run
+        run: cd gtvd-backend && npm run daily
       - name: Commit and push generated video
         run: |
           git config user.name "GTVD Bot"
           git config user.email "bot@gtvd.local"
           cp gtvd-backend/output/latest.json gtvd-frontend/public/latest.json
           mkdir -p gtvd-frontend/public/videos
-          cp gtvd-backend/output/videos/*.mp4 gtvd-frontend/public/videos/
+          cp gtvd-backend/output/videos/*.mp4 gtvd-frontend/public/videos/ 2>/dev/null || true
           git add .
           git commit -m "每日自动更新视频日报" || echo "No changes"
           git push
