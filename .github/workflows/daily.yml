@@ -1,323 +1,38 @@
-name: GTVD Daily Automation
+name: GTVD Daily Pipeline
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: 'Run mode'
-        required: true
-        default: 'full'
-        type: choice
-        options:
-          - full
-          - fetch
-          - analyze
-          - build
-
-env:
-  NODE_VERSION: '20'
+    - cron: '0 0 * * *'  # 每天北京时间 8:00
+  workflow_dispatch:      # 允许手动触发
 
 jobs:
-  notify-start:
-    name: Notify Start
+  daily:
     runs-on: ubuntu-latest
     steps:
-      - name: Send WeChat notification
-        uses: actions/github-script@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          script: |
-            const wechatWebhookUrl = process.env.WECHAT_WEBHOOK_URL;
-            if (!wechatWebhookUrl) return;
-            
-            const now = new Date();
-            const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-            const timeStr = beijingTime.toLocaleString('zh-CN');
-            
-            const payload = {
-              msgtype: 'markdown',
-              markdown: {
-                content: `### 🚀 GTVD 日报任务开始\n> **时间**: ${timeStr}\n> **模式**: ${process.env.GITHUB_EVENT_NAME === 'schedule' ? '自动执行' : '手动触发'}\n> **运行ID**: ${process.env.GITHUB_RUN_ID}`
-              }
-            };
-            
-            try {
-              await fetch(wechatWebhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              });
-            } catch (error) {
-              console.error('Failed to send WeChat notification:', error);
-            }
-        env:
-          WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
-
-  fetch-data:
-    name: Fetch Hot Data
-    runs-on: ubuntu-latest
-    needs: notify-start
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'full' || github.event.inputs.mode == 'fetch'))
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
+          node-version: '20'
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Install dependencies
-        run: |
-          cd gtvd-backend
-          npm ci
-
-      - name: Create directories
-        run: |
-          mkdir -p gtvd-backend/temp
-          mkdir -p gtvd-backend/output
-
-      - name: Run data fetcher
-        id: fetch
-        run: |
-          cd gtvd-backend
-          node data-fetcher.js 2>&1
-          if [ -f data-fetcher.json ]; then
-            echo "fetched=true" >> $GITHUB_OUTPUT
-          else
-            echo "fetched=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          BRIGHTDATA_PROXY_HOST: ${{ secrets.BRIGHTDATA_PROXY_HOST }}
-          BRIGHTDATA_PROXY_PORT: ${{ secrets.BRIGHTDATA_PROXY_PORT }}
-          BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
-          BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
-
-      - name: Upload fetched data artifact
-        if: hashFiles('gtvd-backend/data-fetcher.json') != ''
-        uses: actions/upload-artifact@v4
-        with:
-          name: fetched-data
-          path: gtvd-backend/data-fetcher.json
-          retention-days: 30
-
-  analyze-data:
-    name: AI Analysis & Classification
-    runs-on: ubuntu-latest
-    needs: fetch-data
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'full' || github.event.inputs.mode == 'analyze'))
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install dependencies
-        run: |
-          cd gtvd-backend
-          npm ci
-
-      - name: Download fetched data
-        uses: actions/download-artifact@v4
-        with:
-          name: fetched-data
-          path: gtvd-backend/
-
-      - name: Run AI analyzer
-        id: analyze
-        run: |
-          cd gtvd-backend
-          node ai-analyzer.js 2>&1
-          if [ -f ai-analysis-result.json ]; then
-            echo "analyzed=true" >> $GITHUB_OUTPUT
-          else
-            echo "analyzed=false" >> $GITHUB_OUTPUT
-          fi
+        run: cd gtvd-backend && npm install
+      - name: Run daily workflow
         env:
           AI_API_KEY: ${{ secrets.AI_API_KEY }}
           AI_BASE_URL: ${{ secrets.AI_BASE_URL }}
           AI_MODEL: ${{ secrets.AI_MODEL }}
-
-      - name: Upload analysis result
-        uses: actions/upload-artifact@v4
-        with:
-          name: analysis-result
-          path: gtvd-backend/ai-analysis-result.json
-          retention-days: 30
-
-  build-video:
-    name: Video Synthesis
-    runs-on: ubuntu-latest
-    needs: analyze-data
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (github.event.inputs.mode == 'full' || github.event.inputs.mode == 'build'))
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Install FFmpeg
+          BRIGHTDATA_PROXY_HOST: ${{ secrets.BRIGHTDATA_PROXY_HOST }}
+          BRIGHTDATA_PROXY_PORT: ${{ secrets.BRIGHTDATA_PROXY_PORT }}
+          BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
+          BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
+        run: cd gtvd-backend && node scheduler.js
+      - name: Commit and push generated video
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          ffmpeg -version
-
-      - name: Install edge-tts
-        run: |
-          pip install edge-tts 2>/dev/null || pip3 install edge-tts 2>/dev/null
-          edge-tts --version || echo "edge-tts installed"
-
-      - name: Install dependencies
-        run: |
-          cd gtvd-backend
-          npm ci
-
-      - name: Create directories
-        run: |
-          mkdir -p gtvd-backend/temp
-          mkdir -p gtvd-backend/output/videos
-
-      - name: Download analysis result
-        uses: actions/download-artifact@v4
-        with:
-          name: analysis-result
-          path: gtvd-backend/
-
-      - name: Run video builder
-        id: build
-        run: |
-          cd gtvd-backend
-          node video-builder.js 2>&1
-          if [ -f latest.json ]; then
-            echo "built=true" >> $GITHUB_OUTPUT
-          else
-            echo "built=false" >> $GITHUB_OUTPUT
-          fi
-        env:
-          EDGE_TTS_ENABLED: 'true'
-          EDGE_TTS_VOICE: 'zh-CN-XiaoxiaoNeural'
-          FFMPEG_PATH: ffmpeg
-          VIDEO_WIDTH: 1080
-          VIDEO_HEIGHT: 1920
-
-      - name: Upload video artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: daily-video
-          path: |
-            gtvd-backend/latest.json
-            gtvd-backend/output/videos/*.mp4
-          retention-days: 30
-
-  deploy-assets:
-    name: Deploy to GitHub Releases
-    runs-on: ubuntu-latest
-    needs: build-video
-    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'full')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download daily assets
-        uses: actions/download-artifact@v4
-        with:
-          name: daily-video
-          path: gtvd-backend/
-
-      - name: Upload to Releases
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: daily-${{ github.run_id }}
-          name: Daily Video ${{ github.run_id }}
-          body: |
-            Daily GTVD video report
-            - Video: GTVD_*.mp4
-            - Data: latest.json
-          files: |
-            gtvd-backend/latest.json
-            gtvd-backend/output/videos/*.mp4
-          draft: false
-          prerelease: false
-
-  notify-success:
-    name: Notify Success
-    runs-on: ubuntu-latest
-    needs: deploy-assets
-    steps:
-      - name: Send WeChat Work notification
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const wechatWebhookUrl = process.env.WECHAT_WEBHOOK_URL;
-            if (!wechatWebhookUrl) return;
-            
-            const now = new Date();
-            const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-            const timeStr = beijingTime.toLocaleString('zh-CN');
-            
-            const payload = {
-              msgtype: 'markdown',
-              markdown: {
-                content: `### ✅ GTVD 日报任务成功\n> **时间**: ${timeStr}\n> **结果**: 数据获取、AI分析、视频生成全部完成\n> **运行ID**: ${process.env.GITHUB_RUN_ID}\n\n[查看详情](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`
-              }
-            };
-            
-            try {
-              await fetch(wechatWebhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              });
-            } catch (error) {
-              console.error('Failed to send WeChat notification:', error);
-            }
-        env:
-          WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
-
-  notify-failure:
-    name: Notify Failure
-    runs-on: ubuntu-latest
-    needs: [fetch-data, analyze-data, build-video, deploy-assets]
-    if: always() && (needs.fetch-data.result == 'failure' || needs.analyze-data.result == 'failure' || needs.build-video.result == 'failure' || needs.deploy-assets.result == 'failure')
-    steps:
-      - name: Send WeChat Work notification
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const wechatWebhookUrl = process.env.WECHAT_WEBHOOK_URL;
-            if (!wechatWebhookUrl) return;
-            
-            const now = new Date();
-            const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-            const timeStr = beijingTime.toLocaleString('zh-CN');
-            
-            const failedSteps = [];
-            if (needs.fetch-data.result == 'failure') failedSteps.push('数据获取');
-            if (needs.analyze-data.result == 'failure') failedSteps.push('AI分析');
-            if (needs.build-video.result == 'failure') failedSteps.push('视频合成');
-            if (needs.deploy-assets.result == 'failure') failedSteps.push('部署');
-            
-            const payload = {
-              msgtype: 'markdown',
-              markdown: {
-                content: `### ❌ GTVD 日报任务失败\n> **时间**: ${timeStr}\n> **失败步骤**: ${failedSteps.join('、')}\n> **运行ID**: ${process.env.GITHUB_RUN_ID}\n\n[查看详情](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})`
-              }
-            };
-            
-            try {
-              await fetch(wechatWebhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              });
-            } catch (error) {
-              console.error('Failed to send WeChat notification:', error);
-            }
-        env:
-          WECHAT_WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
+          git config user.name "GTVD Bot"
+          git config user.email "bot@gtvd.local"
+          cp gtvd-backend/output/latest.json gtvd-frontend/public/latest.json
+          mkdir -p gtvd-frontend/public/videos
+          cp gtvd-backend/output/videos/*.mp4 gtvd-frontend/public/videos/
+          git add .
+          git commit -m "每日自动更新视频日报" || echo "No changes"
+          git push
