@@ -9,7 +9,6 @@ class VideoBuilder {
         this.videoWidth = parseInt(process.env.VIDEO_WIDTH || '1080', 10);
         this.videoHeight = parseInt(process.env.VIDEO_HEIGHT || '1920', 10);
         this.videoFps = parseInt(process.env.VIDEO_FPS || '30', 10);
-        this.videoBitrate = process.env.VIDEO_BITRATE || '3000k';
         
         this.outputDir = process.env.VIDEO_OUTPUT_DIR || './output/videos';
         this.tempDir = process.env.TEMP_DIR || './temp';
@@ -35,7 +34,7 @@ class VideoBuilder {
 
     execFFmpegArgs(args) {
         return new Promise((resolve, reject) => {
-            const child = spawn(this.ffmpegPath, args, { timeout: 300000 });
+            const child = spawn(this.ffmpegPath, args, { timeout: 600000 });
             
             let stderr = '';
             child.stderr.on('data', (data) => {
@@ -68,7 +67,6 @@ class VideoBuilder {
         const args = [
             '-f', 'lavfi',
             '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=3`,
-            '-vf', `drawtext=text='🌍 GTVD 全球热点AI日报':fontsize=60:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-100:enable='between(t,0,3)',drawtext=text='${dateStr}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,3)'`,
             '-c:v', 'libx264',
             '-preset', 'fast',
             '-crf', '23',
@@ -87,7 +85,6 @@ class VideoBuilder {
         const args = [
             '-f', 'lavfi',
             '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=5`,
-            '-vf', `drawtext=text='感谢观看':fontsize=52:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-30:enable='between(t,0,5)',drawtext=text='明天再见！':fontsize=32:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,5)'`,
             '-c:v', 'libx264',
             '-preset', 'fast',
             '-crf', '23',
@@ -100,36 +97,10 @@ class VideoBuilder {
         return outroPath;
     }
 
-    async synthesizeSpeech(text, outputPath) {
-        if (!this.edgeTtsEnabled) {
-            console.log('[VideoBuilder] Edge TTS disabled, skipping audio');
-            return null;
-        }
-
-        return new Promise((resolve, reject) => {
-            const safeText = text.replace(/"/g, '\\"').replace(/'/g, "\\'");
-            const command = `edge-tts --voice ${this.edgeTtsVoice} --text "${safeText}" --write-media ${outputPath}`;
-
-            exec(command, { timeout: 60000 }, (error, stdout, stderr) => {
-                if (error) {
-                    console.warn(`[VideoBuilder] Edge TTS failed for: ${text.substring(0, 20)}...`);
-                    resolve(null);
-                    return;
-                }
-                console.log(`[VideoBuilder] TTS generated: ${outputPath}`);
-                resolve(outputPath);
-            });
-        });
-    }
-
     async createTopicClip(topic, index) {
         const clipPath = path.join(this.tempDir, `clip_${topic.rank}.mp4`);
-        const audioPath = path.join(this.tempDir, `audio_${topic.rank}.mp3`);
         const duration = 8;
 
-        await this.synthesizeSpeech(topic.recommendation_voice || topic.title, audioPath);
-
-        const hasAudio = fs.existsSync(audioPath);
         const hasThumbnail = topic.thumbnail && topic.thumbnail.startsWith('http');
 
         let args;
@@ -137,67 +108,29 @@ class VideoBuilder {
             const thumbnailPath = path.join(this.tempDir, `thumb_${topic.rank}.jpg`);
             await this.downloadFile(topic.thumbnail, thumbnailPath);
 
-            if (hasAudio) {
-                args = [
-                    '-loop', '1',
-                    '-i', thumbnailPath,
-                    '-i', audioPath,
-                    '-t', String(duration),
-                    '-vf', `zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
-                    '-c:v', 'libx264',
-                    '-preset', 'fast',
-                    '-crf', '23',
-                    '-c:a', 'aac',
-                    '-b:a', '128k',
-                    '-shortest',
-                    '-pix_fmt', 'yuv420p',
-                    '-y',
-                    clipPath
-                ];
-            } else {
-                args = [
-                    '-loop', '1',
-                    '-i', thumbnailPath,
-                    '-t', String(duration),
-                    '-vf', `zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
-                    '-c:v', 'libx264',
-                    '-preset', 'fast',
-                    '-crf', '23',
-                    '-pix_fmt', 'yuv420p',
-                    '-y',
-                    clipPath
-                ];
-            }
+            args = [
+                '-loop', '1',
+                '-i', thumbnailPath,
+                '-t', String(duration),
+                '-vf', `scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black`,
+                '-c:v', 'libx264',
+                '-preset', 'fast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-y',
+                clipPath
+            ];
         } else {
-            if (hasAudio) {
-                args = [
-                    '-f', 'lavfi',
-                    '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
-                    '-i', audioPath,
-                    '-vf', `drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
-                    '-c:v', 'libx264',
-                    '-preset', 'fast',
-                    '-crf', '23',
-                    '-c:a', 'aac',
-                    '-b:a', '128k',
-                    '-shortest',
-                    '-pix_fmt', 'yuv420p',
-                    '-y',
-                    clipPath
-                ];
-            } else {
-                args = [
-                    '-f', 'lavfi',
-                    '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
-                    '-vf', `drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
-                    '-c:v', 'libx264',
-                    '-preset', 'fast',
-                    '-crf', '23',
-                    '-pix_fmt', 'yuv420p',
-                    '-y',
-                    clipPath
-                ];
-            }
+            args = [
+                '-f', 'lavfi',
+                '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
+                '-c:v', 'libx264',
+                '-preset', 'fast',
+                '-crf', '23',
+                '-pix_fmt', 'yuv420p',
+                '-y',
+                clipPath
+            ];
         }
 
         await this.execFFmpegArgs(args);
@@ -222,7 +155,7 @@ class VideoBuilder {
 
     async concatVideos(videoPaths, outputPath) {
         const concatListPath = path.join(this.tempDir, 'concat_list.txt');
-        const listContent = videoPaths.map(p => `file '${p}'`).join('\n');
+        const listContent = videoPaths.map(p => `file '${p.replace(/'/g, "\\'")}'`).join('\n');
         fs.writeFileSync(concatListPath, listContent);
 
         const args = [
@@ -267,7 +200,7 @@ class VideoBuilder {
     saveLatestManifest(topics, videoPath) {
         const manifest = {
             date: new Date().toISOString().split('T')[0],
-            video_url: `/videos/${path.basename(videoPath)}`,
+            video_url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
             video_path: videoPath,
             topics: topics.map(t => ({
                 rank: t.rank,
@@ -282,6 +215,10 @@ class VideoBuilder {
         const manifestPath = path.join(this.outputDir, '..', 'latest.json');
         fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
         console.log(`[VideoBuilder] Manifest saved: ${manifestPath}`);
+        
+        const frontendManifestPath = path.join(__dirname, '..', 'gtvd-frontend', 'public', 'latest.json');
+        fs.writeFileSync(frontendManifestPath, JSON.stringify(manifest, null, 2));
+        console.log(`[VideoBuilder] Frontend manifest saved: ${frontendManifestPath}`);
     }
 }
 
