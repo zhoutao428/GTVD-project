@@ -1,0 +1,66 @@
+$primary-color: #1989fa;
+$success-color: #07c160;
+$danger-color: #ee0a24;
+$warning-color: #ff976a;
+$gray-color: #969799;
+$light-gray: #c8c9cc;
+$border-color: #ebedf0;
+$background-color: #f7f8fa;
+$white: #ffffff;
+$text-color: #323233;
+$text-secondary: #646566;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(100vw / 37.5);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: $text-color;
+  background: $background-color;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+@media screen and (min-width: 428px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+input, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.van-loading {
+  display: inline-flex;
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "rank": 1,
+    "title": "Test Topic 1",
+    "platform": "youtube",
+    "category": "AI与科技",
+    "heat_score": 63,
+    "reason_short": "测试数据",
+    "recommendation_voice": "值得一看",
+    "source_link": "https://example.com",
+    "thumbnail": "https://example.com/thumb.jpg"
+  },
+  {
+    "rank": 2,
+    "title": "Test Topic 2",
+    "platform": "tiktok",
+    "category": "平台爆款-TikTok",
+    "heat_score": 58,
+    "reason_short": "测试数据",
+    "recommendation_voice": "值得一看",
+    "source_link": "https://example.com",
+    "thumbnail": ""
+  },
+  {
+    "rank": 3,
+    "title": "Test Topic 3",
+    "platform": "twitter",
+    "category": "其他",
+    "heat_score": 64,
+    "reason_short": "测试数据",
+    "recommendation_voice": "值得一看",
+    "source_link": "https://example.com",
+    "thumbnail": ""
+  }
+]

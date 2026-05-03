@@ -1,0 +1,217 @@
+name: Daily Video Report Workflow
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - collect
+          - process
+          - generate
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  collect-data:
+    name: Data Collection
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'collect' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd gtvd-backend
+          npm ci
+
+      - name: Run data collection
+        run: |
+          cd gtvd-backend
+          npm run collect
+        env:
+          KEYAPI_KEY: ${{ secrets.KEYAPI_KEY }}
+          JUHE_API_KEY: ${{ secrets.JUHE_API_KEY }}
+          DB_PATH: ./data/gtvd.db
+
+  process-data:
+    name: Data Processing
+    runs-on: ubuntu-latest
+    needs: collect-data
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'process' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd gtvd-backend
+          npm ci
+
+      - name: Run data processing
+        run: |
+          cd gtvd-backend
+          npm run process
+        env:
+          DB_PATH: ./data/gtvd.db
+
+  generate-video:
+    name: Video Generation
+    runs-on: ubuntu-latest
+    needs: process-data
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'generate' || github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Verify FFmpeg
+        run: ffmpeg -version
+
+      - name: Install dependencies
+        run: |
+          cd gtvd-backend
+          npm ci
+
+      - name: Create output directories
+        run: |
+          mkdir -p gtvd-backend/output/videos
+          mkdir -p gtvd-backend/output/thumbnails
+          mkdir -p gtvd-backend/data
+          mkdir -p gtvd-backend/backups
+
+      - name: Run video generation
+        run: |
+          cd gtvd-backend
+          npm run generate
+        env:
+          DB_PATH: ./data/gtvd.db
+          FFMPEG_PATH: ffmpeg
+          FFMPROBE_PATH: ffprobe
+          VIDEO_WIDTH: 720
+          VIDEO_HEIGHT: 1280
+
+  full-workflow:
+    name: Full Daily Workflow
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode == 'full'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Verify FFmpeg
+        run: ffmpeg -version
+
+      - name: Install dependencies
+        run: |
+          cd gtvd-backend
+          npm ci
+          cd ../gtvd-frontend
+          npm ci
+
+      - name: Create directories
+        run: |
+          mkdir -p gtvd-backend/output/videos
+          mkdir -p gtvd-backend/output/thumbnails
+          mkdir -p gtvd-backend/data
+          mkdir -p gtvd-backend/backups
+
+      - name: Run full workflow
+        run: |
+          cd gtvd-backend
+          npm run daily
+        env:
+          KEYAPI_KEY: ${{ secrets.KEYAPI_KEY }}
+          JUHE_API_KEY: ${{ secrets.JUHE_API_KEY }}
+          DB_PATH: ./data/gtvd.db
+          FFMPEG_PATH: ffmpeg
+          FFMPROBE_PATH: ffprobe
+          VIDEO_WIDTH: 720
+          VIDEO_HEIGHT: 1280
+
+      - name: Upload video artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-video
+          path: gtvd-backend/output/videos/*.mp4
+          retention-days: 7
+
+      - name: Upload thumbnail artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: daily-thumbnail
+          path: gtvd-backend/output/thumbnails/*.jpg
+          retention-days: 7
+
+  backup-database:
+    name: Database Backup
+    runs-on: ubuntu-latest
+    needs: generate-video
+    if: github.event_name == 'schedule'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          cd gtvd-backend
+          npm ci
+
+      - name: Run backup
+        run: |
+          cd gtvd-backend
+          npm run backup
+        env:
+          DB_PATH: ./data/gtvd.db
+          BACKUP_DIR: ./backups
+
+      - name: Upload backup artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup
+          path: gtvd-backend/backups/*.db
+          retention-days: 30

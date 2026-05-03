@@ -1,0 +1,25 @@
+{
+  "name": "gtvd-backend",
+  "version": "1.0.0",
+  "description": "GTVD Global Hotspot AI Video Daily Report System - Backend",
+  "main": "scheduler.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node scheduler.js",
+    "fetcher": "node data-fetcher.js",
+    "analyzer": "node ai-analyzer.js",
+    "build:video": "node video-builder.js",
+    "daily": "node data-fetcher.js && node ai-analyzer.js && node video-builder.js",
+    "test": "node test-workflow.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "node-schedule": "^2.1.1",
+    "uuid": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

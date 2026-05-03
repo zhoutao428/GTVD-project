@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Test Topic 1",
+    "platform": "youtube",
+    "heat": 1000000,
+    "url": "https://example.com",
+    "thumbnail": "https://example.com/thumb.jpg"
+  },
+  {
+    "title": "Test Topic 2",
+    "platform": "tiktok",
+    "heat": 500000,
+    "url": "https://example.com",
+    "thumbnail": ""
+  },
+  {
+    "title": "Test Topic 3",
+    "platform": "twitter",
+    "heat": 200000,
+    "url": "https://example.com",
+    "thumbnail": ""
+  }
+]
