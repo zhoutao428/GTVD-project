@@ -285,7 +285,7 @@ class VideoBuilder {
 
 async function main() {
     const dataPath = './data-fetcher.json';
-    const analyzerPath = './ai-analyzer.json';
+    const analyzerPath = './ai-analysis-result.json';
 
     if (!fs.existsSync(dataPath)) {
         console.error('[VideoBuilder] Data file not found:', dataPath);
