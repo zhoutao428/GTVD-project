@@ -66,7 +66,7 @@ class VideoBuilder {
             '-crf', '23',
             '-pix_fmt', 'yuv420p',
             '-y',
-            `"${introPath}"`
+            introPath
         ].join(' ');
 
         await this.execFFmpeg(command);
@@ -86,7 +86,7 @@ class VideoBuilder {
             '-crf', '23',
             '-pix_fmt', 'yuv420p',
             '-y',
-            `"${outroPath}"`
+            outroPath
         ].join(' ');
 
         await this.execFFmpeg(command);
@@ -101,7 +101,7 @@ class VideoBuilder {
 
         return new Promise((resolve, reject) => {
             const safeText = text.replace(/"/g, '\\"').replace(/'/g, "\\'");
-            const command = `edge-tts --voice "${this.edgeTtsVoice}" --text "${safeText}" --write-media "${outputPath}"`;
+            const command = `edge-tts --voice ${this.edgeTtsVoice} --text "${safeText}" --write-media ${outputPath}`;
 
             exec(command, { timeout: 60000 }, (error, stdout, stderr) => {
                 if (error) {
@@ -134,10 +134,10 @@ class VideoBuilder {
                 command = [
                     this.ffmpegPath,
                     '-loop', '1',
-                    '-i', `"${thumbnailPath}"`,
-                    '-i', `"${audioPath}"`,
+                    '-i', thumbnailPath,
+                    '-i', audioPath,
                     '-t', String(duration),
-                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'"`,
+                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
@@ -146,21 +146,21 @@ class VideoBuilder {
                     '-shortest',
                     '-pix_fmt', 'yuv420p',
                     '-y',
-                    `"${clipPath}"`
+                    clipPath
                 ].join(' ');
             } else {
                 command = [
                     this.ffmpegPath,
                     '-loop', '1',
-                    '-i', `"${thumbnailPath}"`,
+                    '-i', thumbnailPath,
                     '-t', String(duration),
-                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'"`,
+                    '-vf', `"zoompan=z='min(zoom+0.005,1.2)':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=${this.videoWidth}x${this.videoHeight},scale=${this.videoWidth}:${this.videoHeight}:force_original_aspect_ratio=decrease,pad=${this.videoWidth}:${this.videoHeight}:(ow-iw)/2:(oh-ih)/2:black,drawtext=text='${topic.category}':fontsize=32:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=10:x=20:y=20:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=40:fontcolor=white:boxcolor=black@0.7:boxborderw=10:x=20:y=${this.videoHeight - 80}:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
                     '-pix_fmt', 'yuv420p',
                     '-y',
-                    `"${clipPath}"`
+                    clipPath
                 ].join(' ');
             }
         } else {
@@ -169,8 +169,8 @@ class VideoBuilder {
                     this.ffmpegPath,
                     '-f', 'lavfi',
                     `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
-                    '-i', `"${audioPath}"`,
-                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'"`,
+                    '-i', audioPath,
+                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
@@ -179,20 +179,20 @@ class VideoBuilder {
                     '-shortest',
                     '-pix_fmt', 'yuv420p',
                     '-y',
-                    `"${clipPath}"`
+                    clipPath
                 ].join(' ');
             } else {
                 command = [
                     this.ffmpegPath,
                     '-f', 'lavfi',
                     `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=${duration}`,
-                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'"`,
+                    '-vf', `"drawtext=text='${topic.category}':fontsize=48:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-80:enable='between(t,0,${duration})',drawtext=text='${topic.title}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+30:enable='between(t,0,${duration})'`,
                     '-c:v', 'libx264',
                     '-preset', 'fast',
                     '-crf', '23',
                     '-pix_fmt', 'yuv420p',
                     '-y',
-                    `"${clipPath}"`
+                    clipPath
                 ].join(' ');
             }
         }
@@ -201,143 +201,121 @@ class VideoBuilder {
         return clipPath;
     }
 
-    async downloadFile(url, destPath) {
-        try {
-            const axios = require('axios');
-            const response = await axios.get(url, { responseType: 'arraybuffer' });
-            fs.writeFileSync(destPath, response.data);
-            return destPath;
-        } catch {
-            return null;
-        }
+    async downloadFile(url, outputPath) {
+        const axios = require('axios');
+        const response = await axios({
+            url,
+            method: 'GET',
+            responseType: 'stream'
+        });
+        
+        return new Promise((resolve, reject) => {
+            const writer = fs.createWriteStream(outputPath);
+            response.data.pipe(writer);
+            writer.on('finish', resolve);
+            writer.on('error', reject);
+        });
     }
 
-    async concatenateVideos(videoPaths, outputPath) {
-        const listPath = path.join(this.tempDir, 'concat_list.txt');
-        const listContent = videoPaths.map(p => `file '${p.replace(/'/g, "\\'")}'`).join('\n');
-        fs.writeFileSync(listPath, listContent);
+    async concatVideos(videoPaths, outputPath) {
+        const concatListPath = path.join(this.tempDir, 'concat_list.txt');
+        const listContent = videoPaths.map(p => `file '${p}'`).join('\n');
+        fs.writeFileSync(concatListPath, listContent);
 
         const command = [
             this.ffmpegPath,
             '-f', 'concat',
             '-safe', '0',
-            '-i', `"${listPath}"`,
-            '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '23',
-            '-c:a', 'aac',
-            '-b:a', '128k',
-            '-pix_fmt', 'yuv420p',
+            '-i', concatListPath,
+            '-c', 'copy',
             '-y',
-            `"${outputPath}"`
+            outputPath
         ].join(' ');
 
         await this.execFFmpeg(command);
-        fs.unlinkSync(listPath);
         return outputPath;
     }
 
-    async generateLatestJson(topics, videoPath) {
-        const dateStr = new Date().toISOString();
-        const filename = path.basename(videoPath);
-        
-        const latest = {
-            version: '1.0',
-            generated_at: dateStr,
-            video: {
-                url: filename,
-                filename: filename,
-                duration: this.calculateDuration(topics),
-                width: this.videoWidth,
-                height: this.videoHeight
-            },
-            topics: topics.map(t => ({
-                rank: t.rank,
-                title: t.title,
-                platform: t.platform,
-                category: t.category,
-                heat_score: t.heat_score,
-                reason_short: t.reason_short,
-                recommendation_voice: t.recommendation_voice,
-                source_link: t.source_link,
-                thumbnail: t.thumbnail
-            })),
-            total_topics: topics.length
-        };
-
-        const json = JSON.stringify(latest, null, 2);
-        fs.writeFileSync('latest.json', json, 'utf-8');
-        console.log('[VideoBuilder] Generated latest.json');
-        return latest;
-    }
-
-    calculateDuration(topics) {
-        return 3 + topics.length * 8 + 5;
-    }
-
-    async build(topics) {
+    async buildVideo(topics) {
         console.log('[VideoBuilder] Starting video build...');
 
         const videoPaths = [];
 
-        videoPaths.push(await this.createIntroClip());
+        const introPath = await this.createIntroClip();
+        videoPaths.push(introPath);
 
-        for (const topic of topics) {
-            console.log(`[VideoBuilder] Creating clip ${topic.rank}: ${topic.title.substring(0, 30)}...`);
-            videoPaths.push(await this.createTopicClip(topic));
+        for (let i = 0; i < topics.length; i++) {
+            const topicPath = await this.createTopicClip(topics[i], i + 1);
+            videoPaths.push(topicPath);
         }
 
-        videoPaths.push(await this.createOutroClip());
+        const outroPath = await this.createOutroClip();
+        videoPaths.push(outroPath);
 
-        const dateStr = new Date().toISOString().split('T')[0].replace(/-/g, '');
-        const outputPath = path.join(this.outputDir, `GTVD_${dateStr}.mp4`);
+        const outputPath = path.join(this.outputDir, `daily_${new Date().toISOString().split('T')[0]}.mp4`);
+        await this.concatVideos(videoPaths, outputPath);
 
-        await this.concatenateVideos(videoPaths, outputPath);
-        console.log(`[VideoBuilder] Video saved to ${outputPath}`);
+        console.log(`[VideoBuilder] Video generated: ${outputPath}`);
 
-        await this.generateLatestJson(topics, outputPath);
+        this.saveLatestManifest(topics, outputPath);
 
-        this.cleanupTemp();
+        return outputPath;
+    }
 
-        return {
-            videoPath: outputPath,
-            topics: topics.length
+    saveLatestManifest(topics, videoPath) {
+        const manifest = {
+            date: new Date().toISOString().split('T')[0],
+            video_url: `/videos/${path.basename(videoPath)}`,
+            video_path: videoPath,
+            topics: topics.map(t => ({
+                rank: t.rank,
+                title: t.title,
+                category: t.category,
+                heat_score: t.heat_score,
+                thumbnail: t.thumbnail,
+                url: t.url
+            }))
         };
-    }
 
-    cleanupTemp() {
-        try {
-            fs.rmSync(this.tempDir, { recursive: true, force: true });
-            fs.mkdirSync(this.tempDir, { recursive: true });
-        } catch {
-            console.warn('[VideoBuilder] Failed to cleanup temp directory');
-        }
-    }
-
-    async loadFromFile(filename = 'ai-analysis-result.json') {
-        if (!fs.existsSync(filename)) {
-            throw new Error(`File not found: ${filename}`);
-        }
-        const content = fs.readFileSync(filename, 'utf-8');
-        return JSON.parse(content);
+        const manifestPath = path.join(this.outputDir, '..', 'latest.json');
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+        console.log(`[VideoBuilder] Manifest saved: ${manifestPath}`);
     }
 }
 
 async function main() {
-    const builder = new VideoBuilder();
-    
-    try {
-        const topics = await builder.loadFromFile();
-        await builder.build(topics);
-        console.log('[VideoBuilder] Video build complete!');
-    } catch (error) {
-        console.error('[VideoBuilder] Fatal error:', error.message);
+    const dataPath = './data-fetcher.json';
+    const analyzerPath = './ai-analyzer.json';
+
+    if (!fs.existsSync(dataPath)) {
+        console.error('[VideoBuilder] Data file not found:', dataPath);
         process.exit(1);
     }
+
+    if (!fs.existsSync(analyzerPath)) {
+        console.error('[VideoBuilder] Analysis file not found:', analyzerPath);
+        process.exit(1);
+    }
+
+    const topics = JSON.parse(fs.readFileSync(analyzerPath, 'utf8'));
+    
+    if (!Array.isArray(topics) || topics.length === 0) {
+        console.error('[VideoBuilder] No topics found in analysis file');
+        process.exit(1);
+    }
+
+    const builder = new VideoBuilder();
+    await builder.buildVideo(topics);
 }
 
 if (require.main === module) {
-    main();
+    main().catch(error => {
+        console.error('[VideoBuilder] Fatal error:', error.message);
+        if (error.stack) {
+            console.error(error.stack);
+        }
+        process.exit(1);
+    });
 }
 
 module.exports = VideoBuilder;

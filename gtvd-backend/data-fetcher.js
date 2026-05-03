@@ -38,9 +38,21 @@ class DataFetcher {
             try {
                 const config = {
                     ...options,
-                    timeout: this.timeout,
-                    proxy: this.proxy ? { host: this.proxyHost, port: this.proxyPort, auth: { username: this.proxyUsername, password: this.proxyPassword } } : undefined
+                    timeout: this.timeout
                 };
+
+                // 如果有代理，使用完整的代理 URL 配置
+                if (this.proxy) {
+                    const proxyUrl = new URL(this.proxy);
+                    config.proxy = {
+                        host: proxyUrl.hostname,
+                        port: parseInt(proxyUrl.port),
+                        auth: {
+                            username: proxyUrl.username,
+                            password: proxyUrl.password
+                        }
+                    };
+                }
 
                 const response = await axios(url, config);
                 return response.data;
