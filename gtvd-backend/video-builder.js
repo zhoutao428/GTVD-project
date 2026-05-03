@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 class VideoBuilder {
     constructor() {
@@ -37,12 +37,51 @@ class VideoBuilder {
 
     execFFmpeg(command) {
         return new Promise((resolve, reject) => {
-            exec(command, { timeout: 300000 }, (error, stdout, stderr) => {
-                if (error) {
-                    reject(new Error(`FFmpeg error: ${error.message}\nStderr: ${stderr}`));
-                    return;
+            // 使用 spawn 来避免 shell 转义问题
+            // 解析命令字符串为参数数组
+            const args = [];
+            let current = '';
+            let inQuote = false;
+            let quoteChar = '';
+            
+            for (let i = 0; i < command.length; i++) {
+                const char = command[i];
+                if ((char === '"' || char === "'") && !inQuote) {
+                    inQuote = true;
+                    quoteChar = char;
+                } else if ((char === quoteChar) && inQuote) {
+                    inQuote = false;
+                    quoteChar = '';
+                    if (current) {
+                        args.push(current);
+                        current = '';
+                    }
+                } else if (char === ' ' && !inQuote) {
+                    if (current) {
+                        args.push(current);
+                        current = '';
+                    }
+                } else {
+                    current += char;
                 }
-                resolve();
+            }
+            if (current) {
+                args.push(current);
+            }
+            
+            const ffmpegPath = args.shift();
+            const child = spawn(ffmpegPath, args, { timeout: 300000 });
+            
+            child.on('close', (code) => {
+                if (code === 0) {
+                    resolve();
+                } else {
+                    reject(new Error(`FFmpeg error: Exit code ${code}`));
+                }
+            });
+            
+            child.on('error', (error) => {
+                reject(new Error(`FFmpeg error: ${error.message}`));
             });
         });
     }
@@ -59,8 +98,8 @@ class VideoBuilder {
         const command = [
             this.ffmpegPath,
             '-f', 'lavfi',
-            `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=3`,
-            '-vf', `"drawtext=text='🌍 GTVD 全球热点AI日报':fontsize=60:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-100:enable='between(t,0,3)',drawtext=text='${dateStr}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,3)'`,
+            '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=3`,
+            '-vf', `drawtext=text='🌍 GTVD 全球热点AI日报':fontsize=60:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-100:enable='between(t,0,3)',drawtext=text='${dateStr}':fontsize=36:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,3)'`,
             '-c:v', 'libx264',
             '-preset', 'fast',
             '-crf', '23',
@@ -79,8 +118,8 @@ class VideoBuilder {
         const command = [
             this.ffmpegPath,
             '-f', 'lavfi',
-            `-i`, `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=5`,
-            '-vf', `"drawtext=text='感谢观看':fontsize=52:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-30:enable='between(t,0,5)',drawtext=text='明天再见！':fontsize=32:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,5)'`,
+            '-i', `color=c=black:s=${this.videoWidth}x${this.videoHeight}:d=5`,
+            '-vf', `drawtext=text='感谢观看':fontsize=52:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2-30:enable='between(t,0,5)',drawtext=text='明天再见！':fontsize=32:fontcolor=white:x=(w-text_w)/2:y=(h-text_h)/2+50:enable='between(t,0,5)'`,
             '-c:v', 'libx264',
             '-preset', 'fast',
             '-crf', '23',
