@@ -5,15 +5,10 @@
   "main": "scheduler.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node scheduler.js",
     "collect": "node data-fetcher.js",
     "analyze": "node ai-analyzer.js",
     "build": "node video-builder.js",
-    "fetcher": "node data-fetcher.js",
-    "analyzer": "node ai-analyzer.js",
-    "build:video": "node video-builder.js",
-    "daily": "node data-fetcher.js && node ai-analyzer.js && node video-builder.js",
-    "test": "node test-workflow.js"
+    "daily": "node data-fetcher.js && node ai-analyzer.js && node video-builder.js"
   },
   "dependencies": {
     "axios": "^1.6.2",
