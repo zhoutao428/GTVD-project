@@ -124,7 +124,7 @@ const fetchManifest = async () => {
   error.value = null;
 
   try {
-    const response = await fetch('latest.json');
+    const response = await fetch('./latest.json');
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`);

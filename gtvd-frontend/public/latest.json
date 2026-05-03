@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-05-03T08:00:00Z",
+  "video": {
+    "url": "https://github.com/zhoutao428/GTVD-project/releases/download/daily/latest.mp4",
+    "poster": "",
+    "duration": 180
+  },
+  "total_topics": 10,
+  "topics": [
+    {
+      "rank": 1,
+      "title": "AI技术突破性进展",
+      "category": "科技",
+      "platform": "YouTube",
+      "heat_score": 95,
+      "recommendation_voice": "今日最热门的AI技术突破..."
+    },
+    {
+      "rank": 2,
+      "title": "全球气候峰会开幕",
+      "category": "国际",
+      "platform": "Twitter",
+      "heat_score": 88,
+      "recommendation_voice": "各国代表齐聚讨论气候变化..."
+    },
+    {
+      "rank": 3,
+      "title": "新能源汽车销量创新高",
+      "category": "财经",
+      "platform": "TikTok",
+      "heat_score": 82,
+      "recommendation_voice": "新能源汽车市场持续增长..."
+    },
+    {
+      "rank": 4,
+      "title": "教育改革新政策发布",
+      "category": "教育",
+      "platform": "Instagram",
+      "heat_score": 78,
+      "recommendation_voice": "教育领域迎来重大变革..."
+    },
+    {
+      "rank": 5,
+      "title": "医疗科技新突破",
+      "category": "健康",
+      "platform": "YouTube",
+      "heat_score": 75,
+      "recommendation_voice": "医疗领域取得重要进展..."
+    },
+    {
+      "rank": 6,
+      "title": "太空探索新发现",
+      "category": "科技",
+      "platform": "Twitter",
+      "heat_score": 72,
+      "recommendation_voice": "太空探索传来好消息..."
+    },
+    {
+      "rank": 7,
+      "title": "文化遗产保护",
+      "category": "文化",
+      "platform": "TikTok",
+      "heat_score": 68,
+      "recommendation_voice": "文化遗产保护工作持续推进..."
+    },
+    {
+      "rank": 8,
+      "title": "体育赛事精彩回顾",
+      "category": "体育",
+      "platform": "Instagram",
+      "heat_score": 65,
+      "recommendation_voice": "精彩体育赛事回顾..."
+    },
+    {
+      "rank": 9,
+      "title": "艺术展览盛宴",
+      "category": "艺术",
+      "platform": "YouTube",
+      "heat_score": 62,
+      "recommendation_voice": "精彩艺术展览等你来..."
+    },
+    {
+      "rank": 10,
+      "title": "美食文化之旅",
+      "category": "生活",
+      "platform": "TikTok",
+      "heat_score": 58,
+      "recommendation_voice": "探索世界各地美食文化..."
+    }
+  ]
+}
