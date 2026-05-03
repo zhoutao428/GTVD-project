@@ -37,46 +37,21 @@ class VideoBuilder {
 
     execFFmpeg(command) {
         return new Promise((resolve, reject) => {
-            // 使用 spawn 来避免 shell 转义问题
-            // 解析命令字符串为参数数组
-            const args = [];
-            let current = '';
-            let inQuote = false;
-            let quoteChar = '';
+            const child = spawn(command, [], { 
+                shell: true,
+                timeout: 300000 
+            });
             
-            for (let i = 0; i < command.length; i++) {
-                const char = command[i];
-                if ((char === '"' || char === "'") && !inQuote) {
-                    inQuote = true;
-                    quoteChar = char;
-                } else if ((char === quoteChar) && inQuote) {
-                    inQuote = false;
-                    quoteChar = '';
-                    if (current) {
-                        args.push(current);
-                        current = '';
-                    }
-                } else if (char === ' ' && !inQuote) {
-                    if (current) {
-                        args.push(current);
-                        current = '';
-                    }
-                } else {
-                    current += char;
-                }
-            }
-            if (current) {
-                args.push(current);
-            }
-            
-            const ffmpegPath = args.shift();
-            const child = spawn(ffmpegPath, args, { timeout: 300000 });
+            let stderr = '';
+            child.stderr.on('data', (data) => {
+                stderr += data.toString();
+            });
             
             child.on('close', (code) => {
                 if (code === 0) {
                     resolve();
                 } else {
-                    reject(new Error(`FFmpeg error: Exit code ${code}`));
+                    reject(new Error(`FFmpeg error: Exit code ${code}\n${stderr}`));
                 }
             });
             
