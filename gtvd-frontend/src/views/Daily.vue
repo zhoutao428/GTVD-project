@@ -91,18 +91,37 @@ const onSearch = async () => {
 
   try {
     const query = encodeURIComponent(searchKeyword.value.trim());
-    const response = await fetch(`https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=1`);
+    const response = await fetch(`https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=0`);
     const data = await response.json();
 
+    let allResults = [];
+    
     if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-      results.value = data.RelatedTopics.map((item, index) => ({
+      data.RelatedTopics.forEach(item => {
+        if (item.Topics && item.Topics.length > 0) {
+          allResults = allResults.concat(item.Topics);
+        } else if (item.FirstURL) {
+          allResults.push(item);
+        }
+      });
+    }
+
+    if (data.AbstractURL) {
+      allResults.unshift({
+        Text: data.AbstractText || data.Abstract,
+        FirstURL: data.AbstractURL
+      });
+    }
+
+    if (allResults.length > 0) {
+      results.value = allResults.slice(0, 10).map((item, index) => ({
         title: item.Text || item.FirstURL?.replace(/^https?:\/\//, '').replace(/\/.*/, '') || '未命名',
         url: item.FirstURL,
         snippet: item.Text || '',
         category: '搜索结果',
         platform: 'DuckDuckGo',
         heat_score: 100 - index * 5,
-        recommendation: item.Text ? item.Text.substring(0, 60) + '...' : '点击访问原文'
+        recommendation: item.Text ? item.Text.substring(0, 80) + '...' : '点击访问原文'
       })).filter(item => item.url);
       showToast(`找到 ${results.value.length} 个结果`);
     } else {
