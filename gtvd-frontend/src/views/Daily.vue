@@ -47,7 +47,7 @@
           <div class="topic-content">
             <div class="topic-category">{{ item.category || '热点' }}</div>
             <div class="topic-title">{{ item.title }}</div>
-            <div class="topic-recommendation">{{ item.recommendation || '' }}</div>
+            <div class="topic-recommendation">{{ item.snippet || item.recommendation }}</div>
             <div class="topic-meta">
               <span class="topic-heat" v-if="item.heat_score">
                 <van-icon name="fire" />
@@ -90,68 +90,63 @@ const onSearch = async () => {
   searchError.value = null;
 
   try {
-    // 使用模拟搜索结果
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // 根据关键词生成模拟结果
-    const keywords = searchKeyword.value.trim().toLowerCase();
-    const mockResults = generateMockResults(keywords);
-    results.value = mockResults;
-    
-    showToast(`找到 ${mockResults.length} 个结果`);
+    const query = encodeURIComponent(searchKeyword.value.trim());
+    const response = await fetch(`https://html.duckduckgo.com/html/?q=${query}`);
+    const html = await response.text();
+    const results = parseSearchResults(html);
+
+    if (results.length > 0) {
+      results.value = results.map((item, index) => ({
+        title: item.title,
+        url: item.url,
+        snippet: item.snippet,
+        category: '搜索结果',
+        platform: '全网',
+        heat_score: 100 - index * 5,
+        recommendation: item.snippet ? item.snippet.substring(0, 60) + '...' : '点击访问原文'
+      }));
+      showToast(`找到 ${results.value.length} 个结果`);
+    } else {
+      results.value = [];
+      showToast('未找到相关结果');
+    }
   } catch (err) {
     searchError.value = '搜索失败，请重试';
     console.error(err);
+    results.value = [];
   } finally {
     searching.value = false;
   }
 };
 
-const generateMockResults = (keyword) => {
-  const baseTopics = [
-    { 
-      title: `${keyword} 最新动态`, 
-      category: '热门搜索', 
-      platform: '全网', 
-      heat_score: 98, 
-      recommendation: '点击查看最新相关内容'
-    },
-    { 
-      title: `关于 ${keyword} 的热门讨论`, 
-      category: '热点话题', 
-      platform: '微博/知乎', 
-      heat_score: 95, 
-      recommendation: '查看网友热议'
-    },
-    { 
-      title: `${keyword} 相关视频`, 
-      category: '视频推荐', 
-      platform: 'YouTube/TikTok', 
-      heat_score: 92, 
-      recommendation: '观看相关视频'
-    },
-    { 
-      title: `${keyword} 深度解读`, 
-      category: '深度分析', 
-      platform: '知乎/公众号', 
-      heat_score: 88, 
-      recommendation: '了解更多背景'
-    },
-    { 
-      title: `${keyword} 实时热度`, 
-      category: '热度排行', 
-      platform: '微博热搜', 
-      heat_score: 85, 
-      recommendation: '查看实时排名'
-    }
-  ];
+const parseSearchResults = (html) => {
+  const results = [];
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
 
-  return baseTopics;
+  const resultElements = doc.querySelectorAll('.result');
+  resultElements.forEach((el) => {
+    const titleEl = el.querySelector('.result__title a');
+    const snippetEl = el.querySelector('.result__snippet');
+
+    if (titleEl) {
+      results.push({
+        title: titleEl.textContent.trim(),
+        url: titleEl.href,
+        snippet: snippetEl ? snippetEl.textContent.trim() : ''
+      });
+    }
+  });
+
+  return results.slice(0, 10);
 };
 
 const onTopicClick = (item) => {
-  const keyword = encodeURIComponent(item.title);
-  window.open(`https://duckduckgo.com/?q=${keyword}&ia=web`, '_blank');
+  if (item.url) {
+    window.open(item.url, '_blank');
+  } else {
+    showToast('链接不可用');
+  }
 };
 
 const getRankClass = (rank) => {
