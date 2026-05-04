@@ -91,20 +91,19 @@ const onSearch = async () => {
 
   try {
     const query = encodeURIComponent(searchKeyword.value.trim());
-    const response = await fetch(`https://html.duckduckgo.com/html/?q=${query}`);
-    const html = await response.text();
-    const results = parseSearchResults(html);
+    const response = await fetch(`https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=1`);
+    const data = await response.json();
 
-    if (results.length > 0) {
-      results.value = results.map((item, index) => ({
-        title: item.title,
-        url: item.url,
-        snippet: item.snippet,
+    if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+      results.value = data.RelatedTopics.map((item, index) => ({
+        title: item.Text || item.FirstURL?.replace(/^https?:\/\//, '').replace(/\/.*/, '') || '未命名',
+        url: item.FirstURL,
+        snippet: item.Text || '',
         category: '搜索结果',
-        platform: '全网',
+        platform: 'DuckDuckGo',
         heat_score: 100 - index * 5,
-        recommendation: item.snippet ? item.snippet.substring(0, 60) + '...' : '点击访问原文'
-      }));
+        recommendation: item.Text ? item.Text.substring(0, 60) + '...' : '点击访问原文'
+      })).filter(item => item.url);
       showToast(`找到 ${results.value.length} 个结果`);
     } else {
       results.value = [];
@@ -117,28 +116,6 @@ const onSearch = async () => {
   } finally {
     searching.value = false;
   }
-};
-
-const parseSearchResults = (html) => {
-  const results = [];
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  const resultElements = doc.querySelectorAll('.result');
-  resultElements.forEach((el) => {
-    const titleEl = el.querySelector('.result__title a');
-    const snippetEl = el.querySelector('.result__snippet');
-
-    if (titleEl) {
-      results.push({
-        title: titleEl.textContent.trim(),
-        url: titleEl.href,
-        snippet: snippetEl ? snippetEl.textContent.trim() : ''
-      });
-    }
-  });
-
-  return results.slice(0, 10);
 };
 
 const onTopicClick = (item) => {
