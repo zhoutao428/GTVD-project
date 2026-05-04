@@ -1,125 +1,76 @@
 {
-  "version": "1.0",
-  "generated_at": "2026-05-03T08:00:00Z",
-  "video": {
-    "url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
-    "filename": "GTVD_20260503.mp4",
-    "duration": 10,
-    "width": 1080,
-    "height": 1920,
-    "poster": ""
-  },
+  "date": "2026-05-04",
+  "video_url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
   "topics": [
     {
       "rank": 1,
       "title": "AI技术最新突破：GPT-5性能提升10倍",
-      "platform": "youtube",
       "category": "AI与科技",
       "heat_score": 95,
-      "reason_short": "AI领域重大突破",
-      "recommendation_voice": "今日最热门的AI技术新闻，GPT-5性能大幅提升，值得关注！",
-      "source_link": "https://example.com/1",
       "thumbnail": "https://example.com/thumb1.jpg"
     },
     {
       "rank": 2,
-      "title": "TikTok热门挑战引爆全网",
-      "platform": "tiktok",
+      "title": "TikTok热门挑战引爆全网：冰桶挑战2024",
       "category": "平台爆款-TikTok",
       "heat_score": 92,
-      "reason_short": "社交媒体热门",
-      "recommendation_voice": "TikTok最新挑战火爆全网，快来看看大家都在玩什么！",
-      "source_link": "https://example.com/3",
-      "thumbnail": "https://example.com/thumb3.jpg"
+      "thumbnail": "https://example.com/thumb2.jpg"
     },
     {
       "rank": 3,
       "title": "2024世界杯精彩瞬间回顾",
-      "platform": "tiktok",
-      "category": "体育",
+      "category": "娱乐",
       "heat_score": 91,
-      "reason_short": "体育赛事热点",
-      "recommendation_voice": "精彩世界杯瞬间回顾，带你重温激动时刻！",
-      "source_link": "https://example.com/6",
-      "thumbnail": "https://example.com/thumb6.jpg"
+      "thumbnail": "https://example.com/thumb3.jpg"
     },
     {
       "rank": 4,
       "title": "全球气候峰会达成重大协议",
-      "platform": "twitter",
-      "category": "国际新闻",
+      "category": "社会事件",
       "heat_score": 88,
-      "reason_short": "国际重要事件",
-      "recommendation_voice": "全球气候峰会传来好消息，各国达成重要协议！",
-      "source_link": "https://example.com/2",
-      "thumbnail": "https://example.com/thumb2.jpg"
+      "thumbnail": "https://example.com/thumb4.jpg"
     },
     {
       "rank": 5,
       "title": "SpaceX火星任务最新进展",
-      "platform": "youtube",
       "category": "AI与科技",
       "heat_score": 87,
-      "reason_short": "太空探索",
-      "recommendation_voice": "SpaceX火星任务最新进展，人类离火星又近了一步！",
-      "source_link": "https://example.com/5",
       "thumbnail": "https://example.com/thumb5.jpg"
     },
     {
       "rank": 6,
       "title": "新能源汽车销量创新纪录",
-      "platform": "instagram",
       "category": "财经",
       "heat_score": 85,
-      "reason_short": "财经热点",
-      "recommendation_voice": "新能源汽车市场持续火爆，销量再创新高！",
-      "source_link": "https://example.com/4",
-      "thumbnail": "https://example.com/thumb4.jpg"
+      "thumbnail": "https://example.com/thumb6.jpg"
     },
     {
       "rank": 7,
-      "title": "数码产品评测合集",
-      "platform": "youtube",
-      "category": "AI与科技",
-      "heat_score": 76,
-      "reason_short": "科技评测",
-      "recommendation_voice": "最新数码产品评测，帮你挑选最佳装备！",
-      "source_link": "https://example.com/12",
-      "thumbnail": "https://example.com/thumb12.jpg"
+      "title": "美食博主探访世界各地",
+      "category": "生活创意",
+      "heat_score": 80,
+      "thumbnail": "https://example.com/thumb7.jpg"
     },
     {
       "rank": 8,
       "title": "最新电影票房排行榜",
-      "platform": "twitter",
       "category": "娱乐",
       "heat_score": 78,
-      "reason_short": "娱乐热点",
-      "recommendation_voice": "最新电影票房排行榜，看看哪部电影最火！",
-      "source_link": "https://example.com/9",
-      "thumbnail": "https://example.com/thumb9.jpg"
+      "thumbnail": "https://example.com/thumb8.jpg"
     },
     {
       "rank": 9,
-      "title": "美食博主探访世界各地",
-      "platform": "instagram",
-      "category": "生活",
-      "heat_score": 80,
-      "reason_short": "生活方式",
-      "recommendation_voice": "跟着美食博主探索世界各地的美味！",
-      "source_link": "https://example.com/8",
-      "thumbnail": "https://example.com/thumb8.jpg"
+      "title": "数码产品评测合集",
+      "category": "生活创意",
+      "heat_score": 76,
+      "thumbnail": "https://example.com/thumb9.jpg"
     },
     {
       "rank": 10,
       "title": "教育改革政策解读",
-      "platform": "youtube",
-      "category": "教育",
+      "category": "社会事件",
       "heat_score": 75,
-      "reason_short": "教育政策",
-      "recommendation_voice": "最新教育改革政策解读，家长和学生必看！",
-      "source_link": "https://example.com/10",
       "thumbnail": "https://example.com/thumb10.jpg"
     }
-  ],
-  "total_topics": 10
+  ]
 }
