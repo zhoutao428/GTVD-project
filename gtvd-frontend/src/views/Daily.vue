@@ -73,7 +73,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { showToast, showDialog } from 'vant';
+import { showToast } from 'vant';
 
 const searchKeyword = ref('');
 const searching = ref(false);
@@ -110,67 +110,48 @@ const onSearch = async () => {
 const generateMockResults = (keyword) => {
   const baseTopics = [
     { 
-      title: `AI技术最新突破：${keyword}相关`, 
-      category: 'AI与科技', 
-      platform: 'YouTube', 
+      title: `${keyword} 最新动态`, 
+      category: '热门搜索', 
+      platform: '全网', 
+      heat_score: 98, 
+      recommendation: '点击查看最新相关内容'
+    },
+    { 
+      title: `关于 ${keyword} 的热门讨论`, 
+      category: '热点话题', 
+      platform: '微博/知乎', 
       heat_score: 95, 
-      url: 'https://youtube.com/watch?v=demo1',
-      recommendation: '值得关注的AI发展趋势'
+      recommendation: '查看网友热议'
     },
     { 
-      title: `热门话题讨论：${keyword}`, 
-      category: '社会事件', 
-      platform: 'Twitter', 
+      title: `${keyword} 相关视频`, 
+      category: '视频推荐', 
+      platform: 'YouTube/TikTok', 
       heat_score: 92, 
-      url: 'https://twitter.com/status/demo2',
-      recommendation: '网友热议的话题'
+      recommendation: '观看相关视频'
     },
     { 
-      title: `${keyword}相关视频合集`, 
-      category: '娱乐', 
-      platform: 'TikTok', 
+      title: `${keyword} 深度解读`, 
+      category: '深度分析', 
+      platform: '知乎/公众号', 
       heat_score: 88, 
-      url: 'https://tiktok.com/@user/video/demo3',
-      recommendation: '精选视频推荐'
+      recommendation: '了解更多背景'
     },
     { 
-      title: `深度解析${keyword}`, 
-      category: 'AI与科技', 
-      platform: 'YouTube', 
+      title: `${keyword} 实时热度`, 
+      category: '热度排行', 
+      platform: '微博热搜', 
       heat_score: 85, 
-      url: 'https://youtube.com/watch?v=demo4',
-      recommendation: '专业分析报告'
-    },
-    { 
-      title: `${keyword}热门排行榜`, 
-      category: '生活创意', 
-      platform: 'Instagram', 
-      heat_score: 80, 
-      url: 'https://instagram.com/p/demo5',
-      recommendation: '最新榜单'
+      recommendation: '查看实时排名'
     }
   ];
 
-  // 根据关键词调整标题
-  return baseTopics.map(item => ({
-    ...item,
-    title: item.title.replace('${keyword}', keyword)
-  }));
+  return baseTopics;
 };
 
 const onTopicClick = (item) => {
-  if (item.url) {
-    showDialog({
-      title: item.title,
-      message: `打开链接: ${item.url}`,
-      confirmButtonText: '打开',
-      cancelButtonText: '取消',
-    }).then(() => {
-      window.open(item.url, '_blank');
-    }).catch(() => {});
-  } else {
-    showToast('暂无链接');
-  }
+  const keyword = encodeURIComponent(item.title);
+  window.open(`https://duckduckgo.com/?q=${keyword}&ia=web`, '_blank');
 };
 
 const getRankClass = (rank) => {
