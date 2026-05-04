@@ -41,19 +41,30 @@ async function main() {
     const analyzer = new AIAnalyzer();
     const analyzedTopics = await analyzer.analyzeWithRetry(items);
     
-    // 3. 生成 manifest
+    // 3. 生成前端期望的 manifest 格式
     console.log('[GTVD] Generating manifest...');
+    
+    // 计算总时长（每个话题约8秒intro 3秒 + 10个话题各8秒 + outro 5秒 = 88秒）
+    const totalDuration = 88;
+    
     const manifest = {
+        generated_at: new Date().toISOString(),
         date: new Date().toISOString().split('T')[0],
-        video_url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
+        video: {
+            url: 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4',
+            poster: '',
+            duration: totalDuration
+        },
+        total_topics: analyzedTopics.length,
         topics: analyzedTopics.map(t => ({
             rank: t.rank,
             title: t.title,
             category: t.category,
+            platform: t.platform || '未知',
             heat_score: t.heat_score,
-            thumbnail: t.thumbnail,
-            url: t.url,
-            recommendation: t.recommendation
+            thumbnail: t.thumbnail || '',
+            url: t.url || '',
+            recommendation_voice: t.recommendation || t.reason || ''
         }))
     };
     

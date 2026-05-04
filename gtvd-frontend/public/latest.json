@@ -1,76 +1,112 @@
 {
+  "generated_at": "2026-05-04T03:51:19.147Z",
   "date": "2026-05-04",
-  "video_url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+  "video": {
+    "url": "https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4",
+    "poster": "",
+    "duration": 88
+  },
+  "total_topics": 10,
   "topics": [
     {
       "rank": 1,
       "title": "AI技术最新突破：GPT-5性能提升10倍",
       "category": "AI与科技",
+      "platform": "YouTube",
       "heat_score": 95,
-      "thumbnail": "https://example.com/thumb1.jpg"
+      "thumbnail": "https://example.com/thumb1.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 2,
       "title": "TikTok热门挑战引爆全网：冰桶挑战2024",
       "category": "平台爆款-TikTok",
+      "platform": "TikTok",
       "heat_score": 92,
-      "thumbnail": "https://example.com/thumb2.jpg"
+      "thumbnail": "https://example.com/thumb2.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 3,
       "title": "2024世界杯精彩瞬间回顾",
       "category": "娱乐",
+      "platform": "YouTube",
       "heat_score": 91,
-      "thumbnail": "https://example.com/thumb3.jpg"
+      "thumbnail": "https://example.com/thumb3.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 4,
       "title": "全球气候峰会达成重大协议",
       "category": "社会事件",
+      "platform": "Twitter",
       "heat_score": 88,
-      "thumbnail": "https://example.com/thumb4.jpg"
+      "thumbnail": "https://example.com/thumb4.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 5,
       "title": "SpaceX火星任务最新进展",
       "category": "AI与科技",
+      "platform": "YouTube",
       "heat_score": 87,
-      "thumbnail": "https://example.com/thumb5.jpg"
+      "thumbnail": "https://example.com/thumb5.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 6,
       "title": "新能源汽车销量创新纪录",
       "category": "财经",
+      "platform": "Twitter",
       "heat_score": 85,
-      "thumbnail": "https://example.com/thumb6.jpg"
+      "thumbnail": "https://example.com/thumb6.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 7,
       "title": "美食博主探访世界各地",
       "category": "生活创意",
+      "platform": "TikTok",
       "heat_score": 80,
-      "thumbnail": "https://example.com/thumb7.jpg"
+      "thumbnail": "https://example.com/thumb7.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 8,
       "title": "最新电影票房排行榜",
       "category": "娱乐",
+      "platform": "YouTube",
       "heat_score": 78,
-      "thumbnail": "https://example.com/thumb8.jpg"
+      "thumbnail": "https://example.com/thumb8.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 9,
       "title": "数码产品评测合集",
-      "category": "生活创意",
+      "category": "AI与科技",
+      "platform": "Instagram",
       "heat_score": 76,
-      "thumbnail": "https://example.com/thumb9.jpg"
+      "thumbnail": "https://example.com/thumb9.jpg",
+      "url": "",
+      "recommendation_voice": ""
     },
     {
       "rank": 10,
       "title": "教育改革政策解读",
       "category": "社会事件",
+      "platform": "Twitter",
       "heat_score": 75,
-      "thumbnail": "https://example.com/thumb10.jpg"
+      "thumbnail": "https://example.com/thumb10.jpg",
+      "url": "",
+      "recommendation_voice": ""
     }
   ]
 }
