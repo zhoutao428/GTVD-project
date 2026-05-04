@@ -8,7 +8,10 @@ import {
   Loading,
   Empty,
   PullRefresh,
-  List
+  List,
+  Field,
+  Toast,
+  Dialog
 } from 'vant';
 import 'vant/lib/index.css';
 import App from './App.vue';
@@ -43,5 +46,8 @@ app.use(Loading);
 app.use(Empty);
 app.use(PullRefresh);
 app.use(List);
+app.use(Field);
+app.use(Toast);
+app.use(Dialog);
 
 app.mount('#app');
