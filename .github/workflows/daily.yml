@@ -24,12 +24,8 @@ jobs:
           BRIGHTDATA_PROXY_USERNAME: ${{ secrets.BRIGHTDATA_PROXY_USERNAME }}
           BRIGHTDATA_PROXY_PASSWORD: ${{ secrets.BRIGHTDATA_PROXY_PASSWORD }}
         run: cd gtvd-backend && npm run update
-      - name: Commit and push updates
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config user.name "GTVD Bot"
-          git config user.email "bot@gtvd.local"
-          git add .
-          git commit -m "每日自动更新热点日报" || echo "No changes"
-          git push https://x-access-token:$GH_TOKEN@github.com/zhoutao428/GTVD-project.git main
+      - name: Save manifest as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-manifest
+          path: gtvd-frontend/public/latest.json
